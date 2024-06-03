@@ -1,34 +1,76 @@
-outliers_mean = function(x)
+A1a = function(l, p, n, m, k)
 {
-  m = mean(x)
-  s = sd(x)
-  outliers = vector()
-  j = 0
-  for(i in 1:length(x))
-    if(x[i] < m - 2*s | x[i] > m + 2*s) 
-      {
-      j = j + 1
-      outliers[j] = x[i]
-      }
-  outliers
+  p_pois = dpois(k:m, l)
+  p_geom = dgeom(k:m, p)
+  p_binom = dbinom(k:m, n, p)
+  list(poisson = p_pois, geometric = p_geom, binomial = p_binom)
 }
 
-outliers_iqr = function(x)
+A1b = function(l, p, n, m, k)
 {
-  q = quantile(x, probs = c(0.25, 0.75))
-  q1 = q[1]
-  q3 = q[2]
-  iqr = q3 - q1
-  lo = q1 - 1.5 * iqr
-  up = q3 + 1.5 * iqr
+  p = A1a(l, p, n, m, k)
+  x = k:m
   
-  outliers = vector()
-  j = 0
-  for(i in 1:length(x))
-    if(x[i] < lo | x[i] > up)
-    {
-      j = j + 1
-      outliers[j] = x[i]
-    }
-  outliers
+  par(mfcol = c(1,1))
+  
+  plot(x, p$binomial, type = 'b', ylim = range(p$binomial, p$poisson, p$geometric), ylab = "Probabilitate", main = "Poisson = Verde / Geometric = Albastru / Binomial = Rosu", col = "red")
+  lines(x, p$poisson, type = 'b', col = "green")
+  lines(x, p$geometric, type = 'b', col = "blue")
 }
+
+A1c = function(l)
+{
+  k0 = 0
+  pc_pois = ppois(k0, l)
+  
+  while(pc_pois < 1 - 10^(-6))
+  {
+    k0 = k0 + 1
+    pc_pois = ppois(k0, l)
+  }
+  
+  return (k0)
+}
+
+A2a = function(path)
+{
+  csv = read.csv(path, header = TRUE)
+  colP = csv$P
+  colS = csv$S
+  faP = table(colP)
+  faS = table(colS)
+  frP = as.vector(faP) / length(colP)
+  frS = as.vector(faS) / length(colS)
+  mP = mean(colP)
+  mS = mean(colS)
+  list(frecventaAbsolutaP = faP, frecventaRelativaP = frP, medieP = mP, frecventaAbsolutaS = faS, frecventaRelativaS = frS, medieS = mS)
+}
+
+A2b = function(path, e)
+{
+  csv = read.csv(path, header = TRUE)
+  if(e == "P")
+    col = csv$P
+  else
+    col = csv$S
+  
+  Q1 = quantile(col, 0.25)
+  Q3 = quantile(col, 0.75)
+  IQR = Q3 - Q1
+  
+  col = col[col >= Q1 - 1.5 * IQR & col <= Q3 +1.5 * IQR]
+  
+  hist(col, labels = TRUE,breaks = seq(1, 10), xlim = c(min(col)-1,max(col)), xlab = "Nota")
+  return (col)
+}
+cat("\n\n ########## \n\n\n")
+A1a(2, 0.5, 10, 5, 2)
+cat("\n\n ########## \n\n\n")
+A1b(2, 0.5, 10, 5, 2)
+cat("\n\n ########## \n\n\n")
+A1c(2)
+cat("\n\n ########## \n\n\n")
+A2a("note_PS.txt")
+cat("\n\n ########## \n\n\n")
+A2b("note_PS.txt", "P")
+cat("\n\n ########## \n\n\n")
