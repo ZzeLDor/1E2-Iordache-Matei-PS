@@ -54,8 +54,8 @@ B2 = function(v)
     cat("Aria exacta:", aex, "\n")
     for(i in v)
     {
-      aest = triaria(N)
-      cat("Aria estimata (cu", N, "puncte):", aest, "\n")
+      aest = triaria(i)
+      cat("Aria estimata (cu", i, "puncte):", aest, "\n")
       cat("Eroare relativă:", abs((aest - aex) / aex), "\n\n")
     }
   }
